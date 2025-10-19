@@ -9,11 +9,9 @@ A KÉPEK ELNEVEZÉSE FONTOS HOGY SZÁM LEGYEN ÉS CSAK PNG FORMÁTUMBAN JÓ
 
 Lista:
 
-#2 Attila760 --> 2.png
 
-#4 Bencus --> 4.png
-#5 Benibro --> 5.png
-#6 Burkali --> 6.png
+
+
 
 
 #9 E.Krisz --> 9.png
@@ -24,10 +22,10 @@ Lista:
 
 #18 Lina --> 18.png
 
-#20 Feco --> 20.png
-#21 Szaniszló --> 21.png
+
+
 
 #23 Zsombor --> 23.png
 
 #28 G.Krisz --> 28.png
-#29 Kovács Tünde  --> 29.png
+#29 Hunor --> 29.png
