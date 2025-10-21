@@ -256,26 +256,37 @@
         if(created >= total){
           clearInterval(timer);
           setTimeout(()=>{
-            document.querySelectorAll('.instax').forEach(el=>{
-              let tx, ty;
-              do {
-                tx = (Math.random()*2000 - 1000);  
-                ty = (Math.random()*1500 - 750);  
-              } while (Math.abs(tx) < 250 && Math.abs(ty) < 150);
-              const endrot = (Math.random()*1080 - 540) + 'deg'; 
-              el.style.setProperty('--tx', tx + 'px');
-              el.style.setProperty('--ty', ty + 'px');
-              el.style.setProperty('--endrot', endrot);
-              el.style.animation = 'scatterOut 2s cubic-bezier(.15,.9,.25,1) forwards';
-            });
-            setTimeout(()=>{ reveal.classList.add('visible'); }, 2000);
-          }, 1000);
+  document.querySelectorAll('.instax').forEach(el=>{
+    let tx, ty;
+    do {
+      tx = (Math.random()*2000 - 1000);  
+      ty = (Math.random()*1500 - 750);  
+    } while (Math.abs(tx) < 250 && Math.abs(ty) < 150);
+    const endrot = (Math.random()*1080 - 540) + 'deg'; 
+    el.style.setProperty('--tx', tx + 'px');
+    el.style.setProperty('--ty', ty + 'px');
+    el.style.setProperty('--endrot', endrot);
+    el.style.animation = 'scatterOut 2s cubic-bezier(.15,.9,.25,1) forwards';
+  });
+  setTimeout(()=>{ 
+    reveal.classList.add('visible'); 
+    // ⬇️ Itt az átirányítás 4 másodperc múlva
+    setTimeout(()=>{
+      window.location.href = "szoveg2.html";
+    }, 4000);
+  }, 2000);
+}, 1000);
+
           return;
+          
         }
         makeInstax(created);
         created++;
       }, interval);
+      
     }
+
+    
 
     // indulás
     startIntro();

@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interaktív kördiagram – infóval és animációval</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .wrap {
+      position: relative;
+      width: min(80vmin, 600px);
+      aspect-ratio: 1/1;
+      border-radius: 50%;
+      overflow: visible;
+      margin-top: auto;
+      transition: opacity 0.3s ease;
+    }
+
+    /* **Glow most a kép ALATT**: kisebb z-index, az img és canvas fölé ne kerüljenek */
+    .wrap::before {
+      content: "";
+      position: absolute;
+      inset: 15%;
+      border-radius: 50%;
+      box-shadow: 
+        0 0 40px 10px rgba(255, 255, 255, 0.15),
+        0 0 80px 30px rgba(255, 255, 255, 0.1),
+        0 0 120px 50px rgba(255, 255, 255, 0.05);
+      animation: whiteFlow 4s ease-in-out infinite alternate;
+      z-index: 1; /* alacsonyabb, mint az img (img z-index:2), így a glow a kép alatt lesz */
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .wrap.hide-glow::before {
+      opacity: 0;
+    }
+
+    @keyframes whiteFlow {
+      0% {
+        box-shadow:
+          0 0 40px 10px rgba(255, 255, 255, 0.15),
+          0 0 80px 30px rgba(255, 255, 255, 0.1),
+          0 0 120px 50px rgba(255, 255, 255, 0.05);
+      }
+      100% {
+        box-shadow:
+          0 0 70px 20px rgba(255, 255, 255, 0.3),
+          0 0 140px 50px rgba(255, 255, 255, 0.15),
+          0 0 200px 80px rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    /* kép és canvas z-index-ek: img fölött legyen a glow, canvas a legfelül */
+    img {
+      position: absolute;
+      inset: 0;
+      width: 97%;
+      height: 97%;
+      margin: 1.5%;
+      border-radius: 50%;
+      object-fit: cover;
+      z-index: 2; /* magasabb mint ::before(1) — így a glow alatta marad */
+      pointer-events: none;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3; /* canvas legyen a legfelső réteg (grafika, vonal, stb.) */
+      pointer-events: auto;
+      background: transparent;
+      border-radius: 50%;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 20px 0;
+      margin-top: auto;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 10px;
+      border-radius: 10px;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Info box + vonal */
+    .info-box {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 12px 16px;
+      border-radius: 10px;
+      backdrop-filter: blur(6px);
+      font-size: 14px;
+      color: #fff;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      z-index: 5;
+      visibility: hidden; /* méréskor könnyebb kezelni */
+      white-space: nowrap;
+    }
+
+    .info-box.visible {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    .info-line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+      transform-origin: left center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .info-line.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CONFIG: ide írd a cikkelyek feliratát és forint összegét. 
+       Nem jelenik meg a weblapon, csak a kódban van szerepe.
+       Példa: label = "Bérezés", amount = 250000 -->
+  <script id="sliceConfig" type="application/json">
+  {
+    "totalFunds": 500000,
+    "slices": [
+      {"label":"Rész 1","amount":150000},
+      {"label":"Rész 2","amount":100000},
+      {"label":"Rész 3","amount":50000},
+      {"label":"Rész 4","amount":125000},
+      {"label":"Rész 5","amount":75000}
+    ]
+  }
+  </script>
+  <!-- /CONFIG -->
+
+  <div class="wrap" id="wrap">
+    <img id="donut-img" src="donut.png" alt="Fánk kép" />
+    <canvas id="chart"></canvas>
+    <div class="info-box" id="infoBox"></div>
+    <div class="info-line" id="infoLine"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <script>
+    // PARSING CONFIG (rejtett hely, szerkeszthető a HTML-ben)
+    const configEl = document.getElementById('sliceConfig');
+    let config = { totalFunds: 500000, slices: [] };
+    try {
+      config = JSON.parse(configEl.textContent);
+    } catch (e) {
+      console.warn('sliceConfig parsing failed, using defaults', e);
+    }
+    const TOTAL_FUNDS = Number(config.totalFunds) || 500000;
+    const AMOUNTS = config.slices.map(s => Number(s.amount) || 0);
+    const LABELS = config.slices.map(s => s.label || '');
+
+    if (AMOUNTS.length === 0) {
+      AMOUNTS.push(30,20,15,25,10);
+      LABELS.push('R1','R2','R3','R4','R5');
+    }
+
+    const PARTS = AMOUNTS.slice();
+
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const legend = document.getElementById('legend');
+    const wrap = document.getElementById('wrap');
+    const infoBox = document.getElementById('infoBox');
+    const infoLine = document.getElementById('infoLine');
+
+    let pixelRatio = window.devicePixelRatio || 1;
+    let hoverIndex = -1;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * pixelRatio;
+      canvas.height = rect.height * pixelRatio;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      draw();
+    }
+
+    window.addEventListener('resize', resize);
+
+    function drawGlow(cx, cy, outerR) {
+      const glowR = outerR * 0.85;
+      const grd = ctx.createRadialGradient(cx, cy, glowR * 0.7, cx, cy, glowR);
+      grd.addColorStop(0, 'rgba(255,255,255,0.4)');
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    }
+
+    function draw() {
+      const w = canvas.width / pixelRatio;
+      const h = canvas.height / pixelRatio;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2, cy = h / 2;
+      const outerR = Math.min(w, h) * 0.58;
+     
+
+      const total = PARTS.reduce((a, b) => a + b, 0) || 1;
+      let start = -Math.PI / 2;
+
+      for (let i = 0; i < PARTS.length; i++) {
+        const angle = (PARTS[i] / total) * Math.PI * 2;
+        const end = start + angle;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, outerR, start, end);
+        ctx.closePath();
+
+        // azonnali (nem animált) elsötétítés: minden más fekete, kivéve a hoverIndex-et
+        if (hoverIndex === -1) {
+          ctx.fillStyle = 'rgba(0,0,0,0)';
+        } else {
+          if (i === hoverIndex) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; // a hoverelt marad látható/átlátszó
+          } else {
+            ctx.fillStyle = 'rgba(0,0,0,1)'; // azonnal fekete legyen minden más szelet
+          }
+        }
+
+        ctx.fill();
+        start = end;
+      }
+    }
+
+    function showInfoBox(index, cx, cy, outerR, angleStart, angleEnd, rect) {
+      const midAngle = (angleStart + angleEnd) / 2;
+      const x = cx + Math.cos(midAngle) * (outerR + 20);
+      const y = cy + Math.sin(midAngle) * (outerR + 20);
+
+      const amount = AMOUNTS[index] || 0;
+      const percent = ((amount / TOTAL_FUNDS) * 100).toFixed(1);
+
+      // beállítjuk a tartalmat, majd rejtve mérünk, hogy pontos width/height-et kapjunk
+      infoBox.style.visibility = 'hidden';
+      infoBox.classList.remove('visible');
+      infoBox.innerHTML = `<b>${LABELS[index] || 'Rész ' + (index+1)}</b><br>Mennyiség: ${formatFt(amount)}<br>Arány: ${percent}%`;
+
+      // erőltetett elrendezés lekérése
+      const boxWidth = Math.max(100, infoBox.offsetWidth || 100);
+      const boxHeight = Math.max(40, infoBox.offsetHeight || 40);
+
+      // középpontként számolt koordináták (wrap/canvas koordinátarendszerben)
+      let boxCenterX = x;
+      let boxCenterY = y;
+
+      const margin = 12;
+      // rect.width/height biztosan elérhető (átadtuk a mousemove-ből)
+      if (boxCenterX - boxWidth/2 < margin) boxCenterX = margin + boxWidth/2;
+      if (boxCenterX + boxWidth/2 > rect.width - margin) boxCenterX = rect.width - margin - boxWidth/2;
+      if (boxCenterY - boxHeight/2 < margin) boxCenterY = margin + boxHeight/2;
+      if (boxCenterY + boxHeight/2 > rect.height - margin) boxCenterY = rect.height - margin - boxHeight/2;
+
+      // végleges pozíció középpont alapján
+      infoBox.style.left = `${boxCenterX - boxWidth / 2}px`;
+      infoBox.style.top = `${boxCenterY - boxHeight / 2}px`;
+
+      // most már láthatóvá tesszük
+      infoBox.style.visibility = 'visible';
+      infoBox.classList.add('visible');
+
+      // info-line: induljon pontosan a szelet külső szélétől (px,py) és futson a doboz közepéhez
+   
+
+      const dx = boxCenterX - px;
+      const dy = boxCenterY - py;
+      const length = Math.sqrt(dx*dx + dy*dy);
+
+      infoLine.style.left = `${px}px`;
+      infoLine.style.top = `${py}px`;
+      infoLine.style.width = `${length}px`;
+      // CSS rotate() elfogad 'rad' egységet is
+      infoLine.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+      infoLine.classList.add('visible');
+    }
+
+    function hideInfoBox() {
+      infoBox.classList.remove('visible');
+      infoBox.style.visibility = 'hidden';
+      infoLine.classList.remove('visible');
+    }
+
+    function formatFt(n) {
+      return new Intl.NumberFormat('hu-HU').format(n) + ' Ft';
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const dx = x - cx;
+      const dy = y - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const outerR = Math.min(rect.width, rect.height) * 0.58;
+
+      const total = PARTS.reduce((a, b) => a + b, 0) || 1;
+      let start = 0;
+      let found = -1;
+      for (let i = 0; i < PARTS.length; i++) {
+        const slice = (PARTS[i] / total) * Math.PI * 2;
+        const end = start + slice;
+        if (angleInSlice(dx, dy, start, end, outerR, dist)) {
+          found = i;
+          // amikor megtaláltuk, továbbra is szükségünk van az aktuális start értékre
+          break;
+        }
+        start = end;
+      }
+
+      if (found !== hoverIndex) {
+        hoverIndex = found;
+        if (hoverIndex !== -1) {
+          wrap.classList.add('hide-glow');
+        } else {
+          wrap.classList.remove('hide-glow');
+          hideInfoBox();
+        }
+        draw();
+
+        if (hoverIndex !== -1) {
+          const angleStart = start;
+          const angleEnd = start + (PARTS[hoverIndex] / total) * Math.PI * 2;
+          // adjuk át a rect-et is, hogy a pozíció számítások a helyes méreteket használják
+          showInfoBox(hoverIndex, cx, cy, outerR, angleStart, angleEnd, rect);
+        }
+      } else {
+        // ha ugyanazon a szeleten marad a kurzor, frissítsük a vonalat/dobozt is (pl. ha átmozdult egy kicsit)
+        if (hoverIndex !== -1) {
+          const angleStart = start;
+          const angleEnd = start + (PARTS[hoverIndex] / total) * Math.PI * 2;
+          showInfoBox(hoverIndex, cx, cy, outerR, angleStart, angleEnd, rect);
+        }
+      }
+    });
+
+    function angleInSlice(dx, dy, start, end, outerR, dist) {
+      if (dist > outerR) return false;
+      let angle = Math.atan2(dy, dx);
+      if (angle < -Math.PI / 2) angle += 2 * Math.PI;
+      angle -= -Math.PI / 2;
+      if (angle < 0) angle += 2 * Math.PI;
+      return angle >= start && angle < end;
+    }
+
+    canvas.addEventListener('mouseleave', () => {
+      hoverIndex = -1;
+      draw();
+      wrap.classList.remove('hide-glow');
+      hideInfoBox();
+    });
+
+    function buildLegend() {
+      legend.innerHTML = '';
+      const total = PARTS.reduce((a, b) => a + b, 0) || 1;
+      for (let i = 0; i < PARTS.length; i++) {
+        const el = document.createElement('div');
+        el.className = 'legend-item';
+        const sw = document.createElement('div');
+        sw.className = 'swatch';
+        const txt = document.createElement('div');
+        const percent = ((AMOUNTS[i] / TOTAL_FUNDS) * 100).toFixed(1);
+        txt.textContent = `${LABELS[i] || 'Rész ' + (i+1)}: ${percent}%`;
+        el.appendChild(sw);
+        el.appendChild(txt);
+        legend.appendChild(el);
+      }
+    }
+
+    buildLegend();
+    resize();
+  </script>
+</body>
+</html>
