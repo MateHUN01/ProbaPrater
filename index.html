@@ -3,8 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Instax - Mi vagyunk a 10C</title>
+  <title>Instax - Mi vagyunk a 10.C</title>
   <style>
+    /* ⭐ Háttér csillagok */
+.stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  background: transparent;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
     :root{
       --bg:#0f1724;
       --accent:#60a5fa;
@@ -20,17 +44,19 @@
     }
 
     /* Betűnként megjelenő szöveg */
-    .display-wrap{
-      pointer-events:none;
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(180deg,var(--bg), #071025);
-      transition:opacity 1s ease;
-      z-index:10;
-    }
+    .display-wrap {
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  /* EDDIG EZ VOLT: background:linear-gradient(180deg,var(--bg), #071025); */
+  background:linear-gradient(180deg, rgba(15,23,36,0.9), rgba(7,16,37,0.9)); /* áttetsző */
+  transition:opacity 1s ease;
+  z-index:10;
+      }
+
     .display-wrap.hidden{opacity:0;pointer-events:none;}
     .line{
       font-size:var(--font-sz);font-weight:600;line-height:1.05;white-space:pre-wrap;text-align:center;max-width:90%;
@@ -40,19 +66,20 @@
     .char.visible{opacity:1;transform:translateY(0)}
 
     /* Instax rész */
-    .stage{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      background:#111;
-      color:#fff;
-      opacity:0;
-      transition:opacity 1s ease;
-      z-index:1;
-    }
+   .stage {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  /* EDDIG EZ VOLT: background:#111; */
+  background:rgba(17,17,17,0.85); /* áttetsző fekete, csillagok átsejlenek */
+  color:#fff;
+  opacity:0;
+  transition:opacity 1s ease;
+  z-index:1;}
+
     .stage.visible{opacity:1;}
     .pile{
       position:relative;
@@ -142,6 +169,8 @@
   </style>
 </head>
 <body>
+  <div class="stars" id="stars"></div>
+
   <!-- Első rész -->
   <div class="display-wrap" id="intro">
     <div id="display" class="line" aria-live="polite"></div>
@@ -152,11 +181,29 @@
     <div class="pile" id="pile" aria-hidden="true"></div>
     <div class="revealText" id="reveal">
       <img src="emoji.png" alt="emoji" class="emoji" id="emoji">
-      Mi vagyunk a 10C
+      Mi vagyunk a 10.c
     </div>
   </div>
 
   <script>
+    // 🌟 Csillagok generálása
+const stars = document.createElement('div');
+stars.className = 'stars';
+document.body.prepend(stars); // háttérbe tesszük
+
+function createStars(count = 150) {
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 5) + 's';
+    s.style.opacity = Math.random() * 0.8 + 0.2;
+    stars.appendChild(s);
+  }
+}
+createStars();
+
     // ---- 1. rész: betűnkénti szöveg ----
     const lines = ["Megyünk Práterbe?", "Megyüüüüüüüüüünk!"];
     const display = document.getElementById('display');
@@ -290,6 +337,7 @@
 
     // indulás
     startIntro();
+    
   </script>
 </body>
 </html>

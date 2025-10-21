@@ -6,18 +6,43 @@
   <title>Szöveg animáció</title>
   <style>
     :root{
-      --bg:#0f1724;
+      --bg:#000;
       --text:#e6eef8;
       --font-sz: clamp(20px, 4vw, 48px);
     }
     html,body{
-      height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:linear-gradient(180deg,var(--bg), #071025);
+      height:100%;
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--bg);
       color:var(--text);
       overflow:hidden;
+      position:relative;
     }
 
-    /* Betűnként megjelenő szöveg */
+    /* Háttér csillagok */
+    .stars{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      z-index:0;
+      background:transparent;
+    }
+    .star{
+      position:absolute;
+      width:2px;
+      height:2px;
+      background:white;
+      border-radius:50%;
+      opacity:0.8;
+      animation: twinkle 3s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity:0.2; transform:scale(0.8); }
+      50% { opacity:1; transform:scale(1.2); }
+    }
+
+    /* Szöveg animációs képernyő */
     .display-wrap{
       pointer-events:none;
       position:absolute;
@@ -25,7 +50,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:linear-gradient(180deg,var(--bg), #071025);
+      background:rgba(0,0,0,0.85);
       transition:opacity 1s ease;
       z-index:10;
     }
@@ -33,18 +58,21 @@
     .line{
       font-size:var(--font-sz);
       font-weight:600;
-      line-height:1.05;
-      white-space:pre-wrap;
+      line-height:1.2;
       text-align:center;
       max-width:90%;
       display:inline-block;
-      letter-spacing:0.2px;
+      letter-spacing:0.3px;
+      white-space:normal;
+      overflow-wrap:normal;
+      word-break:keep-all;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)) drop-shadow(0 0 8px rgba(120,180,255,0.5));
     }
     .char{
       opacity:0;
       display:inline-block;
       transform:translateY(8px);
-      transition:opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1)
+      transition:opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1);
     }
     .char.visible{
       opacity:1;
@@ -53,6 +81,8 @@
   </style>
 </head>
 <body>
+  <div class="stars" id="stars"></div>
+
   <div class="display-wrap" id="intro">
     <div id="display" class="line" aria-live="polite"></div>
   </div>
@@ -61,15 +91,30 @@
     const lines = [
       "Hogy mire is szeretnénk költeni a pályázati pénzt?",
       "Az osztályközösség fejlesztésére!",
-      "Egy csodás bécsi vidámparkba szeretnénk eljutni, Práterbe",
-      "A költségvetést már meg is terveztük, ami a következő képpen alakul..."
+      "Egy csodás bécsi vidámparkba szeretnénk eljutni, Práterbe.",
+      "A költségvetés a következőképpen alakul..."
     ];
 
     const display = document.getElementById('display');
     const intro = document.getElementById('intro');
+    const stars = document.getElementById('stars');
     let isPlaying = false;
     let currentTimerIds = [];
     let currentIndex = 0;
+
+    // Csillagok generálása
+    function createStars(count = 150) {
+      for(let i=0; i<count; i++){
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.top = Math.random()*100 + '%';
+        s.style.left = Math.random()*100 + '%';
+        s.style.animationDelay = (Math.random()*5)+'s';
+        s.style.opacity = Math.random()*0.8+0.2;
+        stars.appendChild(s);
+      }
+    }
+    createStars();
 
     function clearTimers(){ currentTimerIds.forEach(id=>clearTimeout(id)); currentTimerIds=[]; }
 
@@ -100,7 +145,6 @@
         isPlaying = false;
         setTimeout(()=>{
           intro.classList.add('hidden');
-          // 🎯 Átirányítás 2 másodperc múlva a donut.html-re
           setTimeout(()=>{
             window.location.href = "donut3.html";
           }, 2000);

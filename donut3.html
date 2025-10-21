@@ -5,6 +5,30 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Interaktív kördiagram – infóval és animációval</title>
   <style>
+    /* ⭐ Háttér csillagok */
+.stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  background: transparent;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       display: flex;
@@ -160,6 +184,8 @@
   </style>
 </head>
 <body>
+    <div class="stars" id="stars"></div>
+
 
   <!-- CONFIG: ide írd a cikkelyek feliratát és forint összegét. 
        Nem jelenik meg a weblapon, csak a kódban van szerepe.
@@ -188,6 +214,24 @@
   <div class="legend" id="legend"></div>
 
   <script>
+    // 🌟 Csillagok generálása
+const stars = document.createElement('div');
+stars.className = 'stars';
+document.body.prepend(stars); // háttérbe tesszük
+
+function createStars(count = 150) {
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 5) + 's';
+    s.style.opacity = Math.random() * 0.8 + 0.2;
+    stars.appendChild(s);
+  }
+}
+createStars();
+
     // PARSING CONFIG (rejtett hely, szerkeszthető a HTML-ben)
     const configEl = document.getElementById('sliceConfig');
     let config = { totalFunds: 500000, slices: [] };
