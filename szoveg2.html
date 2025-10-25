@@ -64,9 +64,14 @@
       display:inline-block;
       letter-spacing:0.3px;
       white-space:normal;
-      overflow-wrap:normal;
-      word-break:keep-all;
+      word-wrap:break-word;
+      word-break:normal;
       filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)) drop-shadow(0 0 8px rgba(120,180,255,0.5));
+    }
+    .word{
+      display:inline-flex;
+      white-space:nowrap;
+      margin-right:0.35em; /* kis szóköz */
     }
     .char{
       opacity:0;
@@ -89,10 +94,9 @@
 
   <script>
     const lines = [
-      "Hogy mire is szeretnénk költeni a pályázati pénzt?",
-      "Az osztályközösség fejlesztésére!",
-      "Egy csodás bécsi vidámparkba szeretnénk eljutni, Práterbe.",
-      "A költségvetés a következőképpen alakul..."
+      "Az osztáyközösségünkre egy kis csiszolódás ráfér még...",
+      "Így Prátert szemeltük ki célul",
+      "Egy feljethetelen bécsi napra mennénk el, tele élményekkel",
     ];
 
     const display = document.getElementById('display');
@@ -116,26 +120,45 @@
     }
     createStars();
 
-    function clearTimers(){ currentTimerIds.forEach(id=>clearTimeout(id)); currentTimerIds=[]; }
+    function clearTimers(){
+      currentTimerIds.forEach(id=>clearTimeout(id));
+      currentTimerIds=[];
+    }
 
     function showLine(text, cb){
-      clearTimers(); display.innerHTML='';
-      const chars = Array.from(text);
-      chars.forEach((ch)=>{
-        const sp = document.createElement('span');
-        sp.className='char';
-        sp.textContent = ch === ' ' ? '\u00A0' : ch;
-        display.appendChild(sp);
-      });
+      clearTimers();
+      display.innerHTML = '';
+
+      const words = text.split(' ');
       const perChar = 60;
-      const initialDelay = 100;
-      Array.from(display.children).forEach((el, idx)=>{
-        const delay = initialDelay + idx * perChar;
-        const id = setTimeout(()=>{ el.classList.add('visible'); }, delay);
-        currentTimerIds.push(id);
+      const initialDelay = 200;
+      let totalDelay = initialDelay;
+
+      words.forEach((word, wordIndex) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word';
+        display.appendChild(wordSpan);
+
+        // minden betű külön karakter span
+        for (let i = 0; i < word.length; i++) {
+          const ch = word[i];
+          const charEl = document.createElement('span');
+          charEl.className = 'char';
+          charEl.textContent = ch;
+          wordSpan.appendChild(charEl);
+
+          const delay = totalDelay;
+          const id = setTimeout(() => {
+            charEl.classList.add('visible');
+          }, delay);
+          currentTimerIds.push(id);
+          totalDelay += perChar;
+        }
+        totalDelay += 100; // kis szünet szóköz után
       });
-      const total = initialDelay + chars.length * perChar + 500;
-      const endId = setTimeout(()=>{ if(cb) cb(); }, total);
+
+      const total = totalDelay + 400;
+      const endId = setTimeout(() => { if(cb) cb(); }, total);
       currentTimerIds.push(endId);
     }
 
@@ -153,7 +176,10 @@
       }
       const text = lines[currentIndex];
       showLine(text, ()=>{
-        setTimeout(()=>{ currentIndex++; playSequence(); }, 700);
+        setTimeout(()=>{
+          currentIndex++;
+          playSequence();
+        }, 1000);
       });
     }
 

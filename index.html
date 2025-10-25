@@ -29,143 +29,152 @@
   50% { opacity: 1; transform: scale(1.2); }
 }
 
-    :root{
-      --bg:#0f1724;
-      --accent:#60a5fa;
-      --text:#e6eef8;
-      --font-sz: clamp(20px, 4vw, 48px);
-      --size:260px;
-    }
-    html,body{
-      height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:linear-gradient(180deg,var(--bg), #071025);
-      color:var(--text);
-      overflow:hidden;
-    }
+:root{
+  --bg:#0f1724;
+  --accent:#60a5fa;
+  --text:#e6eef8;
+  --font-sz: clamp(20px, 4vw, 48px);
+  --size:260px;
+}
+html,body{
+  height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:linear-gradient(180deg,var(--bg), #071025);
+  color:var(--text);
+  overflow:hidden;
+}
 
-    /* Betűnként megjelenő szöveg */
-    .display-wrap {
+/* Betűnként megjelenő szöveg */
+.display-wrap {
   pointer-events:none;
   position:absolute;
   inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  /* EDDIG EZ VOLT: background:linear-gradient(180deg,var(--bg), #071025); */
-  background:linear-gradient(180deg, rgba(15,23,36,0.9), rgba(7,16,37,0.9)); /* áttetsző */
+  background:linear-gradient(180deg, rgba(15,23,36,0.9), rgba(7,16,37,0.9));
   transition:opacity 1s ease;
   z-index:10;
-      }
+}
 
-    .display-wrap.hidden{opacity:0;pointer-events:none;}
-    .line{
-      font-size:var(--font-sz);font-weight:600;line-height:1.05;white-space:pre-wrap;text-align:center;max-width:90%;
-      display:inline-block;letter-spacing:0.2px;
-    }
-    .char{opacity:0;display:inline-block;transform:translateY(8px);transition:opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1)}
-    .char.visible{opacity:1;transform:translateY(0)}
+.display-wrap.hidden{opacity:0;pointer-events:none;}
+.line{
+  font-size:var(--font-sz);font-weight:600;line-height:1.05;text-align:center;max-width:90%;
+  display:inline-block;letter-spacing:0.2px;
+  white-space:normal;
+  word-wrap:break-word;
+}
+.word {
+  display: inline-block;
+  white-space: nowrap; /* egy szó ne törjön el */
+  margin-right: 0.25em;
+}
+.char{
+  opacity:0;display:inline-block;transform:translateY(8px);
+  transition:opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1)
+}
+.char.visible{opacity:1;transform:translateY(0)}
 
-    /* Instax rész */
-   .stage {
+/* Instax rész */
+.stage {
   position:absolute;
   inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
   flex-direction:column;
-  /* EDDIG EZ VOLT: background:#111; */
-  background:rgba(17,17,17,0.85); /* áttetsző fekete, csillagok átsejlenek */
+  background:rgba(17,17,17,0.85);
   color:#fff;
   opacity:0;
   transition:opacity 1s ease;
-  z-index:1;}
+  z-index:1;
+}
 
-    .stage.visible{opacity:1;}
-    .pile{
-      position:relative;
-      width:calc(var(--size) * 1.4);
-      height:calc(var(--size) * 1.4);
-      pointer-events:none;
-    }
-    .instax{
-      --w:var(--size);
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:var(--w);
-      transform:translate(-50%,-50%) scale(0.9);
-      box-shadow:0 12px 30px rgba(0,0,0,0.6);
-      border-radius:8px;
-      background:#fff;
-      padding:10px;
-      box-sizing:border-box;
-      transition:transform 900ms cubic-bezier(.2,.9,.25,1),opacity 900ms ease;
-      opacity:0;
-      will-change:transform,opacity;
-      z-index:1;
-    }
-    .instax img{display:block;width:100%;height:auto;border-radius:4px}
-    .label{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:-30px;
-      color:#fff;
-      font-weight:700;
-      font-size:14px;
-      text-shadow:0 2px 6px rgba(0,0,0,.8);
-    }
-    .fall-in{
-      animation:fallIn 700ms cubic-bezier(.22,.9,.2,1) forwards;
-    }
-    @keyframes fallIn{
-      0%{opacity:0;transform:translate(-50%,-160%) scale(.7) rotate(var(--rot,0deg))}
-      60%{opacity:1;transform:translate(-50%, -52%) scale(1.04) rotate(var(--rot,0deg))}
-      100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rot,0deg))}
-    }
-    @keyframes scatterOut {
-      0% {opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rot,0deg));}
-      100% {
-        opacity:1;
-        transform:translate(calc(-50% + var(--tx, 0px)),calc(-50% + var(--ty, 0px)))
-        scale(1) rotate(var(--endrot, 180deg));
-      }
-    }
+.stage.visible{opacity:1;}
+.pile{
+  position:relative;
+  width:calc(var(--size) * 1.4);
+  height:calc(var(--size) * 1.4);
+  pointer-events:none;
+}
+.instax{
+  --w:var(--size);
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:var(--w);
+  transform:translate(-50%,-50%) scale(0.9);
+  box-shadow:0 12px 30px rgba(0,0,0,0.6);
+  border-radius:8px;
+  background:#fff;
+  padding:10px;
+  box-sizing:border-box;
+  transition:transform 900ms cubic-bezier(.2,.9,.25,1),opacity 900ms ease;
+  opacity:0;
+  will-change:transform,opacity;
+  z-index:1;
+}
+.instax img{display:block;width:100%;height:auto;border-radius:4px}
+.label{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:-30px;
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
+  text-shadow:0 2px 6px rgba(0,0,0,.8);
+}
+.fall-in{
+  animation:fallIn 700ms cubic-bezier(.22,.9,.2,1) forwards;
+}
+@keyframes fallIn{
+  0%{opacity:0;transform:translate(-50%,-160%) scale(.7) rotate(var(--rot,0deg))}
+  60%{opacity:1;transform:translate(-50%, -52%) scale(1.04) rotate(var(--rot,0deg))}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rot,0deg))}
+}
+@keyframes scatterOut {
+  0% {opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rot,0deg));}
+  100% {
+    opacity:1;
+    transform:translate(calc(-50% + var(--tx, 0px)),calc(-50% + var(--ty, 0px)))
+    scale(1) rotate(var(--endrot, 180deg));
+  }
+}
 
-    .revealText{
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      font-size:64px;
-      font-weight:900;
-      text-align:center;
-      opacity:0;
-      transition:opacity 1s ease;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      z-index:999;
-      pointer-events:none;
-    }
-    .revealText.visible{opacity:1}
-    .emoji{
-      width:90px;height:auto;transform:rotate(20deg);transform-origin:center;margin-bottom:10px;
-      animation:emojiFall 3s ease forwards;animation-delay:10s;
-    }
-    @keyframes emojiFall {
-      0% { transform: rotate(20deg) translate(0,0); opacity:1; }
-      40% { transform: rotate(60deg) translate(40px,60px); }
-      70% { transform: rotate(100deg) translate(120px,200px); }
-      100% { transform: rotate(150deg) translate(300px,400px); opacity:0; }
-    }
-    @media (max-width:600px){
-      :root{--size:180px}
-      .label{font-size:12px}
-      .revealText{font-size:40px;}
-      .emoji{width:60px;}
-    }
+.revealText{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:64px;
+  font-weight:900;
+  text-align:center;
+  opacity:0;
+  transition:opacity 1s ease;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  pointer-events:none;
+}
+.revealText.visible{opacity:1}
+.emoji{
+  width:90px;height:auto;transform:rotate(20deg);transform-origin:center;margin-bottom:10px;
+  animation:emojiFall 3s ease forwards;animation-delay:10s;
+}
+@keyframes emojiFall {
+  0% { transform: rotate(20deg) translate(0,0); opacity:1; }
+  40% { transform: rotate(60deg) translate(40px,60px); }
+  70% { transform: rotate(100deg) translate(120px,200px); }
+  100% { transform: rotate(150deg) translate(300px,400px); opacity:0; }
+}
+@media (max-width:600px){
+  :root{--size:180px}
+  .label{font-size:12px}
+  .revealText{font-size:40px;}
+  .emoji{width:60px;}
+}
   </style>
 </head>
 <body>
@@ -189,7 +198,7 @@
     // 🌟 Csillagok generálása
 const stars = document.createElement('div');
 stars.className = 'stars';
-document.body.prepend(stars); // háttérbe tesszük
+document.body.prepend(stars);
 
 function createStars(count = 150) {
   for (let i = 0; i < count; i++) {
@@ -205,139 +214,156 @@ function createStars(count = 150) {
 createStars();
 
     // ---- 1. rész: betűnkénti szöveg ----
-    const lines = ["Megyünk Práterbe?", "Megyüüüüüüüüüünk!"];
-    const display = document.getElementById('display');
-    const intro = document.getElementById('intro');
-    const stage = document.getElementById('stage');
-    let isPlaying = false;
-    let currentTimerIds = [];
-    let currentIndex = 0;
+const lines = ["Megyünk Práterbe?", "Megyüüüüüüüüüünk!"];
+const display = document.getElementById('display');
+const intro = document.getElementById('intro');
+const stage = document.getElementById('stage');
+let isPlaying = false;
+let currentTimerIds = [];
+let currentIndex = 0;
 
-    function clearTimers(){ currentTimerIds.forEach(id=>clearTimeout(id)); currentTimerIds=[]; }
+function clearTimers(){ currentTimerIds.forEach(id=>clearTimeout(id)); currentTimerIds=[]; }
 
-    function showLine(text, cb){
-      clearTimers(); display.innerHTML='';
-      const chars = Array.from(text);
-      chars.forEach((ch)=>{
-        const sp = document.createElement('span');
-        sp.className='char';
-        sp.textContent = ch === ' ' ? '\u00A0' : ch;
-        display.appendChild(sp);
-      });
-      const perChar = 60;
-      const initialDelay = 100;
-      Array.from(display.children).forEach((el, idx)=>{
-        const delay = initialDelay + idx * perChar;
-        const id = setTimeout(()=>{ el.classList.add('visible'); }, delay);
-        currentTimerIds.push(id);
-      });
-      const total = initialDelay + chars.length * perChar + 500;
-      const endId = setTimeout(()=>{ if(cb) cb(); }, total);
-      currentTimerIds.push(endId);
+function showLine(text, cb){
+  clearTimers(); 
+  display.innerHTML='';
+
+  const words = text.split(' ');
+  words.forEach((word, wIndex) => {
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'word';
+
+    Array.from(word).forEach(ch => {
+      const sp = document.createElement('span');
+      sp.className = 'char';
+      sp.textContent = ch;
+      wordSpan.appendChild(sp);
+    });
+
+    display.appendChild(wordSpan);
+
+    if (wIndex < words.length - 1) {
+      const space = document.createTextNode(' ');
+      display.appendChild(space);
     }
-
-    function playSequence(){
-      if(!isPlaying) return;
-      if(currentIndex >= lines.length){
-        isPlaying=false;
-        setTimeout(()=>{
-          intro.classList.add('hidden');
-          stage.classList.add('visible');
-          startInstax(); // Átváltás a második részre
-        }, 1000);
-        return;
-      }
-      const text = lines[currentIndex];
-      showLine(text, ()=>{
-        setTimeout(()=>{ currentIndex++; playSequence(); }, 700);
-      });
-    }
-
-    function startIntro(){
-      if(isPlaying) return;
-      isPlaying = true;
-      currentIndex = 0;
-      playSequence();
-    }
-
-    // ---- 2. rész: Instax nevek ----
-    const names = [
-      "Botika","Attila760","Bazsi","Bencus","Benibro","Burkali","Dominik","Laci","E.Krisz","Roli",
-      "FILOO","Robi","Tomi","Patrik","Bancsi","Mate","Kovács","Lina","Hepp","Feco",
-      "Szaniszló","XXviktoriaXX","Zsombor","Ákos","Zolusz","Martin","Cseni","G.Krisz","Kovács Tünde - Osztályfőnök"
-    ];
-
-    const pile = document.getElementById('pile');
-    const reveal = document.getElementById('reveal');
-    let created = 0;
-
-    function makeInstax(index){
-      const wrapper = document.createElement('div');
-      wrapper.className = 'instax';
-      const rot = (Math.random()*24 - 12).toFixed(2) + 'deg';
-      wrapper.style.setProperty('--rot', rot);
-      const offsetX = (Math.random()*40 - 20) + 'px';
-      const offsetY = (Math.random()*40 - 20) + 'px';
-      wrapper.style.left = `calc(50% + ${offsetX})`;
-      wrapper.style.top = `calc(50% + ${offsetY})`;
-      wrapper.style.zIndex = 100 + index;
-
-      const img = document.createElement('img');
-      img.src = `pic${index+1}.png`;
-      img.alt = names[index] || `pic${index+1}`;
-
-      const label = document.createElement('div');
-      label.className = 'label';
-      label.textContent = names[index];
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(label);
-      pile.appendChild(wrapper);
-      requestAnimationFrame(()=>{ wrapper.classList.add('fall-in'); });
-    }
-
-    function startInstax(){
-      const total = names.length;
-      const interval = 500;
-      const timer = setInterval(()=>{
-        if(created >= total){
-          clearInterval(timer);
-          setTimeout(()=>{
-  document.querySelectorAll('.instax').forEach(el=>{
-    let tx, ty;
-    do {
-      tx = (Math.random()*2000 - 1000);  
-      ty = (Math.random()*1500 - 750);  
-    } while (Math.abs(tx) < 250 && Math.abs(ty) < 150);
-    const endrot = (Math.random()*1080 - 540) + 'deg'; 
-    el.style.setProperty('--tx', tx + 'px');
-    el.style.setProperty('--ty', ty + 'px');
-    el.style.setProperty('--endrot', endrot);
-    el.style.animation = 'scatterOut 2s cubic-bezier(.15,.9,.25,1) forwards';
   });
-  setTimeout(()=>{ 
-    reveal.classList.add('visible'); 
-    // ⬇️ Itt az átirányítás 4 másodperc múlva
-    setTimeout(()=>{
-      window.location.href = "szoveg2.html";
-    }, 4000);
-  }, 2000);
-}, 1000);
 
-          return;
-          
-        }
-        makeInstax(created);
-        created++;
-      }, interval);
-      
+  const chars = display.querySelectorAll('.char');
+  const perChar = 60;
+  const initialDelay = 100;
+  chars.forEach((el, idx)=>{
+    const delay = initialDelay + idx * perChar;
+    const id = setTimeout(()=>{ el.classList.add('visible'); }, delay);
+    currentTimerIds.push(id);
+  });
+
+  const total = initialDelay + chars.length * perChar + 500;
+  const endId = setTimeout(()=>{ if(cb) cb(); }, total);
+  currentTimerIds.push(endId);
+}
+
+function playSequence(){
+  if(!isPlaying) return;
+  if(currentIndex >= lines.length){
+    isPlaying=false;
+    setTimeout(()=>{
+      intro.classList.add('hidden');
+      stage.classList.add('visible');
+      startInstax();
+    }, 1000);
+    return;
+  }
+  const text = lines[currentIndex];
+  showLine(text, ()=>{
+    setTimeout(()=>{ currentIndex++; playSequence(); }, 700);
+  });
+}
+
+function startIntro(){
+  if(isPlaying) return;
+  isPlaying = true;
+  currentIndex = 0;
+  playSequence();
+}
+
+// ---- 2. rész: Instax nevek ----
+const names = [
+  "Botika","Attila760","Bazsi","Bencus","Benibro","Burkali","Dominik","Laci","E.Krisz","Roli",
+  "FILOO","Robi","Tomi","Patrik","Bancsi","Mate","Kovács","Lina","Hepp","Feco",
+  "Szaniszló","XXviktoriaXX","Zsombor","Ákos","Zolusz","Martin","Cseni","G.Krisz","Kovács Tünde - Osztályfőnök"
+];
+
+const pile = document.getElementById('pile');
+const reveal = document.getElementById('reveal');
+let created = 0;
+
+function makeInstax(index){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'instax';
+  const rot = (Math.random()*24 - 12).toFixed(2) + 'deg';
+  wrapper.style.setProperty('--rot', rot);
+  const offsetX = (Math.random()*40 - 20) + 'px';
+  const offsetY = (Math.random()*40 - 20) + 'px';
+  wrapper.style.left = `calc(50% + ${offsetX})`;
+  wrapper.style.top = `calc(50% + ${offsetY})`;
+  wrapper.style.zIndex = 100 + index;
+
+  const img = document.createElement('img');
+  img.src = `pic${index+1}.png`;
+  img.alt = names[index] || `pic${index+1}`;
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.textContent = names[index];
+
+  // ha a kép nem található, kihagyjuk a kártyát
+  img.onload = () => {
+    wrapper.appendChild(img);
+    wrapper.appendChild(label);
+    pile.appendChild(wrapper);
+    requestAnimationFrame(()=>{ wrapper.classList.add('fall-in'); });
+  };
+  img.onerror = () => {
+    // csak átugrik, mintha semmi se történt volna
+  };
+}
+
+function startInstax(){
+  const total = names.length;
+  const interval = 500;
+  let shown = 0;
+
+  const timer = setInterval(()=>{
+    if(created >= total){
+      clearInterval(timer);
+      setTimeout(()=>{
+        document.querySelectorAll('.instax').forEach(el=>{
+          let tx, ty;
+          do {
+            tx = (Math.random()*2000 - 1000);  
+            ty = (Math.random()*1500 - 750);  
+          } while (Math.abs(tx) < 250 && Math.abs(ty) < 150);
+          const endrot = (Math.random()*1080 - 540) + 'deg'; 
+          el.style.setProperty('--tx', tx + 'px');
+          el.style.setProperty('--ty', ty + 'px');
+          el.style.setProperty('--endrot', endrot);
+          el.style.animation = 'scatterOut 2s cubic-bezier(.15,.9,.25,1) forwards';
+        });
+        setTimeout(()=>{ 
+          reveal.classList.add('visible'); 
+          setTimeout(()=>{ window.location.href = "video.html"; }, 4000);
+        }, 2000);
+      }, 1000);
+      return;
     }
 
-    
+    makeInstax(created);
+    created++;
+  }, interval);
+}
 
-    // indulás
-    startIntro();
-    
+// indulás
+startIntro();
   </script>
 </body>
 </html>
