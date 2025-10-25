@@ -23,6 +23,30 @@
   opacity: 0.8;
   animation: twinkle 3s infinite ease-in-out;
 }
+/* Fade-in réteg (betöltéskor világosodik ki) */
+.fade-overlay {
+  position: fixed;
+  inset: 0;
+  background: black;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 1.5s ease-out;
+}
+
+.fade-overlay.hidden {
+  opacity: 0;
+}
+@keyframes drift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-30px, 40px); }
+}
+.star.big {
+  width: 3px;
+  height: 3px;
+  animation: twinkle 3s infinite ease-in-out, drift 60s linear infinite;
+}
+
 
 @keyframes twinkle {
   0%, 100% { opacity: 0.2; transform: scale(0.8); }
@@ -37,9 +61,10 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      background: #000;
+      background: radial-gradient(circle at center, #020617 0%, #000 100%);
       color: #fff;
       overflow: hidden;
+      
     }
 
     .wrap {
@@ -185,6 +210,8 @@
 </head>
 <body>
     <div class="stars" id="stars"></div>
+    <div class="fade-overlay" id="fade"></div>
+
 
 
   <!-- CONFIG: ide írd a cikkelyek feliratát és forint összegét. 
@@ -467,6 +494,29 @@ createStars();
     legend.style.marginBottom = '40px';
     resize();
     document.body.insertAdjacentHTML('beforeend','<div id="chart-tip" style="position:fixed;bottom:10px;right:10px;background:rgba(255,255,255,0.1);padding:6px 10px;border-radius:10px;font-size:15px;font-weight:500;color:#fff;backdrop-filter:blur(4px);z-index:10;">Tipp: A fánkon az egérrel végighúzva jelennek meg a költségvetési diagram szeletei</div>');
+
+    // 🌑 Fade-in betöltéskor
+window.addEventListener('load', () => {
+  const fade = document.getElementById('fade');
+  // egy kis késleltetés, hogy a szemnek természetes legyen
+  setTimeout(() => {
+    fade.classList.add('hidden');
+  }, 200);
+  // 2s után teljesen eltüntetjük a réteget a DOM-ból
+  setTimeout(() => {
+    fade.remove();
+  }, 2000);
+});
+if (i === hoverIndex) {
+  ctx.shadowColor = 'rgba(255,255,255,0.4)';
+  ctx.shadowBlur = 15;
+} else {
+  ctx.shadowBlur = 0;
+}
+ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+ctx.lineWidth = 2;
+ctx.stroke();
+
 
 
   </script>

@@ -41,6 +41,19 @@
       0%, 100% { opacity:0.2; transform:scale(0.8); }
       50% { opacity:1; transform:scale(1.2); }
     }
+    /* Fade out réteg */
+  .fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    transition: opacity 1.5s ease-in;
+}
+.fade-overlay.active {
+    opacity: 1;
+}
 
     /* Szöveg animációs képernyő */
     .display-wrap{
@@ -87,6 +100,8 @@
 </head>
 <body>
   <div class="stars" id="stars"></div>
+  <div class="fade-overlay" id="fade"></div>
+
 
   <div class="display-wrap" id="intro">
     <div id="display" class="line" aria-live="polite"></div>
@@ -163,25 +178,33 @@
     }
 
     function playSequence(){
-      if(!isPlaying) return;
-      if(currentIndex >= lines.length){
-        isPlaying = false;
-        setTimeout(()=>{
-          intro.classList.add('hidden');
-          setTimeout(()=>{
-            window.location.href = "donut3.html";
-          }, 2000);
-        }, 1000);
-        return;
-      }
-      const text = lines[currentIndex];
-      showLine(text, ()=>{
-        setTimeout(()=>{
-          currentIndex++;
-          playSequence();
-        }, 1000);
-      });
-    }
+  if(!isPlaying) return;
+  if(currentIndex >= lines.length){
+    isPlaying = false;
+    setTimeout(()=>{
+      intro.classList.add('hidden');
+
+      // 🔥 Fade out animáció kezdete
+      const fade = document.getElementById('fade');
+      fade.classList.add('active');
+
+      // Várunk míg elsötétül, aztán váltunk
+      setTimeout(()=>{
+        window.location.href = "donut3.html";
+      }, 1800); // 1.8s után váltás
+    }, 1000);
+    return;
+  }
+
+  const text = lines[currentIndex];
+  showLine(text, ()=>{
+    setTimeout(()=>{
+      currentIndex++;
+      playSequence();
+    }, 1000);
+  });
+}
+
 
     function startIntro(){
       if(isPlaying) return;
