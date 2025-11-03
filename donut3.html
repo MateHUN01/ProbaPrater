@@ -17,46 +17,44 @@
     }
 
     #nextButton {
-      background: transparent;
-      border: 2px solid white;
-      color: white;
-      font-size: 17px;
-      font-weight: 600;
-      padding: 10px 28px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
+  position: fixed;
+  top: 50%;                /* függőleges középre helyezés */
+  right: 40px;             /* kicsit beljebb a képernyő szélétől */
+  transform: translateY(-50%); /* pontos középre igazítás */
+  width: 90px;             /* négyzet alak */
+  height: 90px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 16px;     /* enyhén lekerekített, de „kockás” marad */
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    #nextButton:hover {
-      background: white;
-      color: black;
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
-    }
-#nextButton {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 500;
-      padding: 10px 26px;
-      border-radius: 12px;
-      backdrop-filter: blur(6px);
-      cursor: pointer;
-      transition: all 0.25s ease;
-      z-index: 100;
-    }
+#cursor {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  pointer-events: none;
+  z-index: 10;
+}
 
-    #nextButton:hover {
-      background: rgba(255, 255, 255, 0.22);
-      transform: translateX(-50%) scale(1.05);
-      box-shadow: 0 0 15px rgba(255,255,255,0.3);
-    }
+
+#nextButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+}
+
+
     /* ⭐ Háttér csillagok */
 .stars {
   position: absolute;
@@ -264,6 +262,9 @@
     <div class="stars" id="stars"></div>
     <div class="fade-overlay" id="fade"></div>
     <button id="nextButton">Tovább</button>
+    <img id="cursor" src="cursor.png" width="20" height="20" style="position: absolute; top: 0; left: 0; z-index: 200; pointer-events: none;">
+
+
 
 
 
@@ -459,6 +460,7 @@ createStars();
     function formatFt(n) {
       return new Intl.NumberFormat('hu-HU').format(n) + ' Ft';
     }
+    
 
     canvas.addEventListener('mousemove', (e) => {
       const rect = canvas.getBoundingClientRect();
@@ -549,31 +551,85 @@ createStars();
     resize();
     document.body.insertAdjacentHTML('beforeend','<div id="chart-tip" style="position:fixed;bottom:10px;right:10px;background:rgba(255,255,255,0.1);padding:6px 10px;border-radius:10px;font-size:15px;font-weight:500;color:#fff;backdrop-filter:blur(4px);z-index:10;">Tipp: A fánkon az egérrel végighúzva jelennek meg a költségvetési diagram szeletei</div>');
 
-    // 🌑 Fade-in betöltéskor
+   // 🌑 Fade-in betöltéskor
 window.addEventListener('load', () => {
   const fade = document.getElementById('fade');
   // egy kis késleltetés, hogy a szemnek természetes legyen
   setTimeout(() => {
-    fade.classList.add('hidden');
+    if (fade) fade.classList.add('hidden');
   }, 200);
   // 2s után teljesen eltüntetjük a réteget a DOM-ból
   setTimeout(() => {
-    fade.remove();
+    if (fade && fade.parentNode) fade.parentNode.removeChild(fade);
   }, 2000);
 });
-if (i === hoverIndex) {
-  ctx.shadowColor = 'rgba(255,255,255,0.4)';
-  ctx.shadowBlur = 15;
-} else {
-  ctx.shadowBlur = 0;
-}
-ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-ctx.lineWidth = 2;
-ctx.stroke();
+(function safeStrokeAndShadowReset() {
+  try {
+    // Ha a ctx készen van, állítsunk alap stroke-ot — ha nem, akkor csendben folytatjuk.
+    if (ctx && typeof ctx.strokeStyle !== 'undefined') {
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      // A stroke akkor lesz látható, ha van aktív útvonal; itt csak alapértéket állítunk.
+    }
+  } catch (e) {
+    // semmi — ha bármelyik változó nincs definiálva, ne szakítsa meg a teljes scriptet
+    // (korábbi hiba oka volt ennek)
+    console.warn('safeStrokeAndShadowReset skipped:', e);
+  }
+})();
+    // Gomb eseménykezelő
+  document.getElementById('nextButton').addEventListener('click', () => {
+  // Ha van fade réteg, használjuk a korábbi fade/átmenet effektet
+  const fadeEl = document.getElementById('fade');
+  if (fadeEl) {
+    fadeEl.classList.remove('hidden'); // visszaállítjuk az elsötétítést
+    fadeEl.classList.add('active');    // és aktiváljuk, ha van rá stílus
+  }
 
-    document.getElementById('nextButton').addEventListener('click', () => {
-      window.location.href = 'afterdonut.html';
-    });
+  // Kisebb késleltetés, hogy az esetleges animációk lefussanak
+  setTimeout(() => {
+    window.location.href = 'afterdonut.html';
+  }, 250);
+  });
+
+  // Kiválasztjuk a cursor elemet
+const cursor = document.getElementById('cursor');
+
+let angle = 0;           // kezdő szög
+const speed = 0.02;      // sebesség (rad/frame)
+const fullCircle = Math.PI * 2; // teljes kör
+
+function animateCursorOnce() {
+  const rect = canvas.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const radius = Math.min(rect.width, rect.height) * 0.58 * 0.7; // 30%-kal szűkebb kör
+
+
+  // cursor pozíció a kör mentén
+  const x = cx + Math.cos(angle) * radius - cursor.width / 2;
+  const y = cy + Math.sin(angle) * radius - cursor.height / 2;
+
+  cursor.style.left = `${x}px`;
+  cursor.style.top = `${y}px`;
+
+  angle += speed;
+
+  if (angle < fullCircle) {
+    requestAnimationFrame(animateCursorOnce);
+  } else {
+    // teljes kör megtétele után eltűnik
+    cursor.style.display = 'none';
+  }
+}
+
+// Indítás betöltéskor
+window.addEventListener('load', () => {
+  animateCursorOnce();
+});
+
+
 
   </script>
 </body>
