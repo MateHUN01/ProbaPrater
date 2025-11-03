@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konfetti Csillagos Háttérrel</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Háttér – fekete csillagos ég, rajta a háttérkép halványan */
+  body {
+    background: radial-gradient(black, #02020a);
+    position: relative;
+  }
+
+  /* Csillag animáció */
+  .stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    animation: moveStars 60s linear infinite;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  @keyframes moveStars {
+    from { transform: translate(0, 0); }
+    to { transform: translate(-50%, -50%); }
+  }
+
+  /* Háttérkép a csillagok fölött, de a konfetti és szöveg mögött */
+  .bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('background.png') center center / cover no-repeat;
+    z-index: 1;
+    opacity: 0.25; /* csak finoman látszódjon a csillagok mögött */
+  }
+
+  /* Szöveg középen, lassan mozgó */
+  h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3.5em;
+    color: white;
+    z-index: 10;
+    text-shadow: 0 0 15px rgba(255,255,255,0.7);
+    animation: floatText 6s ease-in-out infinite;
+  }
+
+  @keyframes floatText {
+    0%, 100% { transform: translate(-50%, -52%); }
+    50% { transform: translate(-50%, -48%); }
+  }
+
+  /* Konfettik */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    opacity: 0.9;
+    z-index: 5;
+    border-radius: 2px;
+    animation: fly 3s ease-out forwards;
+  }
+
+  @keyframes fly {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 1;
+    }
+    70% {
+      transform: translate(var(--xMove), var(--yMove)) rotate(360deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(var(--xMove) * 1.2), 100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="bg"></div>
+
+ <h1>Vége</h1>
+
+  <script>
+    function triggerConfetti(){
+      const colors = ['#f4d03f', '#f1948a', '#85c1e9']; // citromsárga, fakópiros, fakókék
+      const confettiCount = 120;
+
+      for(let i = 0; i < confettiCount; i++){
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+
+        const fromLeft = i < confettiCount / 2;
+        const bottomOffset = Math.random() * 20;
+
+        if(fromLeft){
+          c.style.left = '0';
+          c.style.bottom = bottomOffset + 'px';
+          c.style.setProperty('--xMove', (Math.random() * 60 + 20) + 'vw');
+        } else {
+          c.style.right = '0';
+          c.style.bottom = bottomOffset + 'px';
+          c.style.setProperty('--xMove', '-' + (Math.random() * 60 + 20) + 'vw');
+        }
+
+        c.style.setProperty('--yMove', '-' + (Math.random() * 40 + 30) + 'vh');
+
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }
+    }
+
+   
+  </script>
+</body>
+</html>
