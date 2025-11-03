@@ -5,22 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Szöveg animáció</title>
   <style>
-    :root{
-      --bg:#000;
-      --text:#e6eef8;
+    :root {
+      --bg: #000;
+      --text: #ffffff;
       --font-sz: clamp(20px, 4vw, 48px);
     }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:var(--bg);
-      color:var(--text);
-      overflow:hidden;
-      position:relative;
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      position: relative;
     }
 
-    /* 🌌 Csillagos háttér – mozog lassan */
+    /* 🌌 Csillagos háttér – fényes, látható */
     .stars {
       position: fixed;
       top: 0;
@@ -29,8 +30,9 @@
       height: 200%;
       background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
       animation: moveStars 60s linear infinite;
-      z-index: 0;
-      opacity: 0.5;
+      z-index: 1;
+      opacity: 0.6;
+      filter: brightness(1.8) contrast(1.4);
     }
 
     @keyframes moveStars {
@@ -38,7 +40,7 @@
       to { transform: translate(-50%, -50%); }
     }
 
-    /* 🏞 Háttérkép – a csillagok fölött, de a konfetti és szöveg mögött */
+    /* 🏞 Háttérkép – nem áttetsző, természetes fény */
     .bg {
       position: fixed;
       bottom: 0;
@@ -46,91 +48,93 @@
       width: 100vw;
       height: 100vh;
       background: url('background.png') bottom center / cover no-repeat;
-      z-index: 1;
-      opacity: 200%;
-      pointer-events: none;
-    }
-
-    .fade-overlay {
-      position: fixed;
-      inset: 0;
-      background: black;
-      opacity: 0%;
-      pointer-events: none;
-      z-index: 999;
-      transition: opacity 1.5s ease-in;
-    }
-    .fade-overlay.active { opacity: 1; }
-
-    .display-wrap{
-      pointer-events:none;
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,0.85);
-      transition:opacity 1s ease;
-      z-index:10;
-    }
-    .display-wrap.hidden{opacity:0;pointer-events:none;}
-    .line{
-      font-size:var(--font-sz);
-      font-weight:600;
-      line-height:1.2;
-      text-align:center;
-      max-width:90%;
-      display:inline-block;
-      letter-spacing:0.3px;
-      white-space:normal;
-      word-wrap:break-word;
-      word-break:normal;
-      filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)) drop-shadow(0 0 8px rgba(120,180,255,0.5));
-    }
-    .word{ display:inline-flex; white-space:nowrap; margin-right:0.35em; }
-    .char{ opacity:0; display:inline-block; transform:translateY(8px);
-           transition:opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1);}
-    .char.visible{ opacity:1; transform:translateY(0); }
-
-    /* 🎊 Konfetti stílusok */
-    .confetti {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
+      z-index: 0;
+      filter: brightness(1.1) contrast(1.15) saturate(1.1);
       opacity: 1;
-      animation: confetti-fall ease-in-out forwards;
-      z-index: 9999;
+      pointer-events: none;
     }
 
-    @keyframes confetti-fall {
+    .display-wrap {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+      transition: opacity 1s ease;
+      z-index: 10;
+    }
+
+    .display-wrap.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ✍️ Szöveg: fekete körvonal, nincs fényes effekt */
+    .line {
+      font-size: var(--font-sz);
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+      max-width: 90%;
+      display: inline-block;
+      letter-spacing: 0.3px;
+      white-space: normal;
+      word-wrap: break-word;
+      word-break: normal;
+      text-shadow:
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000;
+    }
+
+    .word { display: inline-flex; white-space: nowrap; margin-right: 0.35em; }
+    .char {
+      opacity: 0;
+      display: inline-block;
+      transform: translateY(8px);
+      transition: opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1);
+    }
+    .char.visible { opacity: 1; transform: translateY(0); }
+
+    /* 💸 Hulló pénz animáció */
+    .falling-image {
+      position: fixed;
+      top: -150px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: fallAndDrift linear forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes fallAndDrift {
       0% {
-        transform: translate(0, 0) rotate(0deg);
+        transform: translate(0, -15vh) rotate(0deg);
         opacity: 1;
       }
-      20% {
-        transform: translate(calc(var(--xMove) * 0.4), calc(var(--yMove) * 1.1)) rotate(180deg);
+      25% {
+        transform: translate(var(--xDrift1), 25vh) rotate(20deg);
       }
       50% {
-        transform: translate(calc(var(--xMove) * 0.7), calc(var(--yMove) * 0.6)) rotate(360deg);
+        transform: translate(var(--xDrift2), 60vh) rotate(-15deg);
       }
-      80% {
-        transform: translate(calc(var(--xMove) * 1.0), calc(var(--yMove) * -0.1)) rotate(540deg);
+      75% {
+        transform: translate(var(--xDrift3), 90vh) rotate(10deg);
+        opacity: 0.9;
       }
       100% {
-        transform: translate(calc(var(--xMove) * 1.1), 100vh) rotate(720deg);
+        transform: translate(var(--xDrift4), 130vh) rotate(0deg);
         opacity: 0;
       }
     }
-
   </style>
 </head>
 <body>
-  <!-- 🌠 Háttér rétegek -->
-  <div class="stars"></div>
   <div class="bg"></div>
+  <div class="stars"></div>
 
-  <div class="fade-overlay" id="fade"></div>
   <div class="display-wrap" id="intro">
     <div id="display" class="line" aria-live="polite"></div>
   </div>
@@ -141,7 +145,8 @@
       "Egy jó bécsi fánk...",
       "De jó is lenne!",
       "...",
-      "Remélem tetszett önöknek a 10.c előadása"
+      "Remélem tetszett önöknek a Jáky 10.C előadása",
+      "VÉGE"
     ];
 
     const display = document.getElementById('display');
@@ -191,25 +196,13 @@
       if(!isPlaying) return;
       if(currentIndex >= lines.length){
         isPlaying = false;
-        setTimeout(()=>{
-          intro.classList.add('hidden');
-          const fade = document.getElementById('fade');
-          fade.classList.add('active');
-          setTimeout(()=>{ window.location.href = "donut3.html"; }, 1800);
-        }, 1000);
         return;
       }
 
       const text = lines[currentIndex];
       showLine(text, ()=>{
         if(currentIndex === lines.length - 1){
-          triggerConfetti();
-          setTimeout(()=>{
-            isPlaying = false;
-            const fade = document.getElementById('fade');
-            fade.classList.add('active');
-            setTimeout(()=>{ window.location.href = "bucsuzo.html"; }, 1800);
-          }, 5000);
+          triggerMoneyRain();
           return;
         }
         setTimeout(()=>{
@@ -219,32 +212,22 @@
       });
     }
 
-    function triggerConfetti(){
-      const colors = ['#FFD700', '#FF6B6B', '#7FB3D5'];
-      const confettiCount = 120;
-
-      for(let i=0;i<confettiCount;i++){
-        const c = document.createElement('div');
-        c.className = 'confetti';
-        c.style.background = colors[Math.floor(Math.random()*colors.length)];
-        c.style.animationDuration = (3 + Math.random()*2) + 's';
-        c.style.opacity = '1';
-        c.style.filter = 'brightness(1.3)';
-
-        const fromLeft = i < confettiCount / 2;
-        if(fromLeft){
-          c.style.left = '0';
-          c.style.bottom = '0';
-          c.style.setProperty('--xMove', (Math.random()*60 + 20) + 'vw');
-        } else {
-          c.style.right = '0';
-          c.style.bottom = '0';
-          c.style.setProperty('--xMove', '-' + (Math.random()*60 + 20) + 'vw');
-        }
-
-        c.style.setProperty('--yMove', '-' + (Math.random()*40 + 20) + 'vh');
-        document.body.appendChild(c);
-        setTimeout(()=>c.remove(), 5500);
+    /* 💸 Hulló pénz */
+    function triggerMoneyRain(){
+      const imageCount = 45;
+      for(let i=0; i<imageCount; i++){
+        const img = document.createElement('img');
+        img.src = 'money.png';
+        img.className = 'falling-image';
+        img.style.left = Math.random() * 100 + 'vw';
+        img.style.animationDuration = (4 + Math.random() * 3) + 's';
+        img.style.animationDelay = (Math.random() * 1.5) + 's';
+        img.style.setProperty('--xDrift1', (Math.random() * 20 - 10) + 'vw');
+        img.style.setProperty('--xDrift2', (Math.random() * 20 - 10) + 'vw');
+        img.style.setProperty('--xDrift3', (Math.random() * 20 - 10) + 'vw');
+        img.style.setProperty('--xDrift4', (Math.random() * 20 - 10) + 'vw');
+        document.body.appendChild(img);
+        setTimeout(()=>img.remove(), 8500);
       }
     }
 
