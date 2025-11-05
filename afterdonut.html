@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Szöveg animáció</title>
+  <title>Szöveg animáció – élethű függöny</title>
   <style>
     :root {
       --bg: #000;
       --text: #ffffff;
       --font-sz: clamp(20px, 4vw, 48px);
+      --curtain-img: url('https://images.unsplash.com/photo-1519035350952-38d18a3848cf?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGN1cnRhaW58ZW58MHx8MHx8fDA%3D');
     }
 
     html, body {
@@ -21,7 +22,27 @@
       position: relative;
     }
 
-    /* 🌌 Csillagos háttér – fényes, látható */
+    /* Háttér */
+    .bg {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 100vh;
+      background: url('pratervege.png') bottom center / cover no-repeat;
+      background-color: black;
+      z-index: 0;
+      pointer-events: none;
+      filter: brightness(1.08) contrast(1.1) saturate(1.05);
+      transform-origin: bottom center;
+      animation: subtleZoom 30s ease-in-out infinite alternate;
+    }
+    @keyframes subtleZoom {
+      0%   { transform: translateX(-50%) scale(1.02); }
+      100% { transform: translateX(-50%) scale(1.08); }
+    }
+
     .stars {
       position: fixed;
       top: 0;
@@ -34,24 +55,9 @@
       opacity: 0.6;
       filter: brightness(1.8) contrast(1.4);
     }
-
     @keyframes moveStars {
       from { transform: translate(0, 0); }
       to { transform: translate(-50%, -50%); }
-    }
-
-    /* 🏞 Háttérkép – nem áttetsző, természetes fény */
-    .bg {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: url('background.png') bottom center / cover no-repeat;
-      z-index: 0;
-      filter: brightness(1.1) contrast(1.15) saturate(1.1);
-      opacity: 1;
-      pointer-events: none;
     }
 
     .display-wrap {
@@ -61,33 +67,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.3);
-      transition: opacity 1s ease;
+      background: rgba(0,0,0,0.45);
       z-index: 10;
     }
-
-    .display-wrap.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* ✍️ Szöveg: fekete körvonal, nincs fényes effekt */
     .line {
       font-size: var(--font-sz);
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1.3;
       text-align: center;
       max-width: 90%;
-      display: inline-block;
-      letter-spacing: 0.3px;
-      white-space: normal;
-      word-wrap: break-word;
-      word-break: normal;
-      text-shadow:
-        -2px -2px 0 #000,
-         2px -2px 0 #000,
-        -2px  2px 0 #000,
-         2px  2px 0 #000;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.7);
     }
 
     .word { display: inline-flex; white-space: nowrap; margin-right: 0.35em; }
@@ -99,7 +88,6 @@
     }
     .char.visible { opacity: 1; transform: translateY(0); }
 
-    /* 💸 Hulló pénz animáció */
     .falling-image {
       position: fixed;
       top: -150px;
@@ -108,26 +96,56 @@
       animation: fallAndDrift linear forwards;
       will-change: transform, opacity;
     }
-
     @keyframes fallAndDrift {
-      0% {
-        transform: translate(0, -15vh) rotate(0deg);
-        opacity: 1;
-      }
-      25% {
-        transform: translate(var(--xDrift1), 25vh) rotate(20deg);
-      }
-      50% {
-        transform: translate(var(--xDrift2), 60vh) rotate(-15deg);
-      }
-      75% {
-        transform: translate(var(--xDrift3), 90vh) rotate(10deg);
-        opacity: 0.9;
-      }
-      100% {
-        transform: translate(var(--xDrift4), 130vh) rotate(0deg);
-        opacity: 0;
-      }
+      0% { transform: translate(0, -15vh) rotate(0deg); opacity: 1; }
+      25% { transform: translate(var(--xDrift1), 25vh) rotate(20deg); }
+      50% { transform: translate(var(--xDrift2), 60vh) rotate(-15deg); }
+      75% { transform: translate(var(--xDrift3), 90vh) rotate(10deg); opacity: 0.9; }
+      100% { transform: translate(var(--xDrift4), 130vh) rotate(0deg); opacity: 0; }
+    }
+
+    /* 🎭 Függöny */
+    .curtain {
+      position: fixed;
+      top: 0;
+      width: 50vw;
+      height: 100vh;
+      background-image: var(--curtain-img);
+      background-size: 200% 100%;
+      z-index: 20000;
+      opacity: 0;
+      animation-fill-mode: forwards;
+      box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
+      background-repeat: no-repeat;
+    }
+
+    .curtain.left {
+      left: 0;
+      background-position: left center;
+      transform: translateX(-100%);
+    }
+
+    .curtain.right {
+      right: 0;
+      background-position: right center;
+      transform: translateX(100%);
+    }
+
+    @keyframes curtainCloseLeft {
+      0% { transform: translateX(-100%); opacity: 1; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes curtainCloseRight {
+      0% { transform: translateX(100%); opacity: 1; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    /* 🌬 Lebegő hullámzás, élethű textilmozgás */
+    @keyframes curtainFloat {
+      0% { transform: translateX(0) scaleX(1); filter: brightness(1) contrast(1); }
+      50% { transform: translateX(0.6%) scaleX(1.02); filter: brightness(1.05) contrast(1.05); }
+      100% { transform: translateX(0) scaleX(1); filter: brightness(1) contrast(1); }
     }
   </style>
 </head>
@@ -138,6 +156,9 @@
   <div class="display-wrap" id="intro">
     <div id="display" class="line" aria-live="polite"></div>
   </div>
+
+  <div class="curtain left" id="curtainLeft"></div>
+  <div class="curtain right" id="curtainRight"></div>
 
   <script>
    const lines = [
@@ -150,7 +171,8 @@
     ];
 
     const display = document.getElementById('display');
-    const intro = document.getElementById('intro');
+    const leftCurtain = document.getElementById('curtainLeft');
+    const rightCurtain = document.getElementById('curtainRight');
     let isPlaying = false;
     let currentTimerIds = [];
     let currentIndex = 0;
@@ -212,7 +234,6 @@
       });
     }
 
-    /* 💸 Hulló pénz */
     function triggerMoneyRain(){
       const imageCount = 45;
       for(let i=0; i<imageCount; i++){
@@ -229,6 +250,18 @@
         document.body.appendChild(img);
         setTimeout(()=>img.remove(), 8500);
       }
+
+      // 2 mp várakozás után záródik a függöny
+      setTimeout(() => {
+        closeCurtains();
+      }, 8000);
+    }
+
+    function closeCurtains(){
+      leftCurtain.style.opacity = "1";
+      rightCurtain.style.opacity = "1";
+      leftCurtain.style.animation = "curtainCloseLeft 3s ease forwards, curtainFloat 5s ease-in-out infinite 3s";
+      rightCurtain.style.animation = "curtainCloseRight 3s ease forwards, curtainFloat 5s ease-in-out infinite 3s";
     }
 
     function startIntro(){
