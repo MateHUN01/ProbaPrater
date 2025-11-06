@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Szöveg animáció</title>
   <style>
-    :root{
+    :root {
       --bg:#000;
       --text:#e6eef8;
       --font-sz: clamp(20px, 4vw, 48px);
     }
-    html,body{
+    html, body {
       height:100%;
       margin:0;
       font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -20,15 +20,15 @@
       position:relative;
     }
 
-    /* Háttér csillagok */
-    .stars{
+    /* 🌌 Háttér csillagok */
+    .stars {
       position:absolute;
       inset:0;
       overflow:hidden;
       z-index:0;
       background:transparent;
     }
-    .star{
+    .star {
       position:absolute;
       width:2px;
       height:2px;
@@ -41,34 +41,72 @@
       0%, 100% { opacity:0.2; transform:scale(0.8); }
       50% { opacity:1; transform:scale(1.2); }
     }
-    /* Fade out réteg */
-  .fade-overlay {
-    position: fixed;
-    inset: 0;
-    background: black;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 999;
-    transition: opacity 1.5s ease-in;
+
+    /* 🌠 Hullócsillagok */
+    .shooting-star {
+      position:absolute;
+      width:2px;
+      height:2px;
+      background:white;
+      box-shadow:0 0 10px white, 0 0 20px white;
+      opacity:0.8;
+      transform:rotate(45deg);
+      animation: shoot 1.2s linear forwards;
+      z-index:0;
+    }
+    @keyframes shoot {
+      0% { transform:translate(0,0) scale(1) rotate(45deg); opacity:1; }
+      80% { opacity:1; }
+      100% { transform:translate(400px,200px) scale(0.5) rotate(45deg); opacity:0; }
+    }
+
+    /* 🍩 Lebegő fánkok */
+ .donut {
+  position:absolute;
+  width:25px;
+  height:25px;
+  background:url("donut.png") center/contain no-repeat;
+  opacity:0.9;
+  z-index:0;
+  animation: floatDonut var(--dur) ease-in-out infinite;
 }
-.fade-overlay.active {
-    opacity: 1;
+@keyframes floatDonut {
+  0%   { transform:translate(0,0) rotate(0deg) scale(1); }
+  25%  { transform:translate(var(--tx1), var(--ty1)) rotate(var(--r1)) scale(1.05); }
+  50%  { transform:translate(var(--tx2), var(--ty2)) rotate(var(--r2)) scale(0.95); }
+  75%  { transform:translate(var(--tx3), var(--ty3)) rotate(var(--r3)) scale(1.1); }
+  100% { transform:translate(0,0) rotate(0deg) scale(1); }
 }
 
-    /* Szöveg animációs képernyő */
-    .display-wrap{
+    /* 🌑 Fade out réteg */
+    .fade-overlay {
+      position: fixed;
+      inset: 0;
+      background: black;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity 1.5s ease-in;
+    }
+    .fade-overlay.active {
+      opacity: 1;
+    }
+
+    /* 🪐 Szöveg animációs képernyő */
+    .display-wrap {
       pointer-events:none;
       position:absolute;
       inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      background:rgba(0,0,0,0.85);
+      /* 🔥 Eltávolítva a sötét réteg */
+      background:transparent;
       transition:opacity 1s ease;
       z-index:10;
     }
-    .display-wrap.hidden{opacity:0;pointer-events:none;}
-    .line{
+    .display-wrap.hidden {opacity:0;pointer-events:none;}
+    .line {
       font-size:var(--font-sz);
       font-weight:600;
       line-height:1.2;
@@ -79,20 +117,21 @@
       white-space:normal;
       word-wrap:break-word;
       word-break:normal;
-      filter: drop-shadow(0 0 4px rgba(255,255,255,0.6)) drop-shadow(0 0 8px rgba(120,180,255,0.5));
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.6))
+              drop-shadow(0 0 8px rgba(120,180,255,0.5));
     }
-    .word{
+    .word {
       display:inline-flex;
       white-space:nowrap;
-      margin-right:0.35em; /* kis szóköz */
+      margin-right:0.35em;
     }
-    .char{
+    .char {
       opacity:0;
       display:inline-block;
       transform:translateY(8px);
       transition:opacity 240ms ease, transform 260ms cubic-bezier(.2,.9,.3,1);
     }
-    .char.visible{
+    .char.visible {
       opacity:1;
       transform:translateY(0)
     }
@@ -102,19 +141,18 @@
   <div class="stars" id="stars"></div>
   <div class="fade-overlay" id="fade"></div>
 
-
   <div class="display-wrap" id="intro">
     <div id="display" class="line" aria-live="polite"></div>
   </div>
 
   <script>
-   const lines = [
-  "Az osztályközösségünkre még ráfér egy kis összecsiszolódás...",
-  "Ezért egy különleges helyre indulnánk: a bécsi Práterbe!",
-  "A legjobb, hogy nincs belépődíj, így mindenki részt vehet rajta!",
-  "Egy nap, ami tényleg összehozná az osztályt.",
-  "Na de térjünk is át a matekra..."
-];
+    const lines = [
+      "Az osztályközösségünkre még ráfér egy kis összecsiszolódás...",
+      "Ezért egy különleges helyre indulnánk: a bécsi Práterbe!",
+      "A legjobb, hogy nincs belépődíj, így mindenki részt vehet rajta!",
+      "Egy nap, ami tényleg összehozná az osztályt.",
+      "Na de térjünk is át a matekra..."
+    ];
 
     const display = document.getElementById('display');
     const intro = document.getElementById('intro');
@@ -123,7 +161,7 @@
     let currentTimerIds = [];
     let currentIndex = 0;
 
-    // Csillagok generálása
+    // 🌌 Csillagok generálása
     function createStars(count = 150) {
       for(let i=0; i<count; i++){
         const s = document.createElement('div');
@@ -135,8 +173,53 @@
         stars.appendChild(s);
       }
     }
-    createStars();
 
+    // 🌠 Hullócsillag generálása
+    function createShootingStar() {
+      const star = document.createElement('div');
+      star.className = 'shooting-star';
+      star.style.top = Math.random() * 40 + '%';
+      star.style.left = Math.random() * 80 + '%';
+      stars.appendChild(star);
+      setTimeout(() => star.remove(), 1500);
+    }
+
+    function shootingStarLoop() {
+      setInterval(() => {
+        if (Math.random() < 0.6) createShootingStar();
+      }, 2000);
+    }
+
+    // 🍩 Donutok generálása
+    function createDonuts(max = 5) {
+  for (let i = 0; i < max; i++) {
+    const d = document.createElement('div');
+    d.className = 'donut';
+    d.style.top = Math.random() * 100 + '%';
+    d.style.left = Math.random() * 100 + '%';
+
+    // 🔹 Egyedi sebesség, eltolások és forgások minden fánknak
+    d.style.setProperty('--dur', (6 + Math.random() * 6) + 's');
+    d.style.setProperty('--tx1', (Math.random() * 20 - 10) + 'px');
+    d.style.setProperty('--ty1', (Math.random() * 20 - 10) + 'px');
+    d.style.setProperty('--tx2', (Math.random() * 30 - 15) + 'px');
+    d.style.setProperty('--ty2', (Math.random() * 30 - 15) + 'px');
+    d.style.setProperty('--tx3', (Math.random() * 20 - 10) + 'px');
+    d.style.setProperty('--ty3', (Math.random() * 20 - 10) + 'px');
+    d.style.setProperty('--r1', (Math.random() * 30 - 15) + 'deg');
+    d.style.setProperty('--r2', (Math.random() * 40 - 20) + 'deg');
+    d.style.setProperty('--r3', (Math.random() * 30 - 15) + 'deg');
+
+    document.body.appendChild(d);
+  }
+}
+
+
+    createStars();
+    shootingStarLoop();
+    createDonuts();
+
+    // ⏱ Szöveg megjelenítés
     function clearTimers(){
       currentTimerIds.forEach(id=>clearTimeout(id));
       currentTimerIds=[];
@@ -151,12 +234,11 @@
       const initialDelay = 200;
       let totalDelay = initialDelay;
 
-      words.forEach((word, wordIndex) => {
+      words.forEach((word) => {
         const wordSpan = document.createElement('span');
         wordSpan.className = 'word';
         display.appendChild(wordSpan);
 
-        // minden betű külön karakter span
         for (let i = 0; i < word.length; i++) {
           const ch = word[i];
           const charEl = document.createElement('span');
@@ -171,7 +253,7 @@
           currentTimerIds.push(id);
           totalDelay += perChar;
         }
-        totalDelay += 100; // kis szünet szóköz után
+        totalDelay += 100;
       });
 
       const total = totalDelay + 400;
@@ -180,33 +262,28 @@
     }
 
     function playSequence(){
-  if(!isPlaying) return;
-  if(currentIndex >= lines.length){
-    isPlaying = false;
-    setTimeout(()=>{
-      intro.classList.add('hidden');
+      if(!isPlaying) return;
+      if(currentIndex >= lines.length){
+        isPlaying = false;
+        setTimeout(()=>{
+          intro.classList.add('hidden');
+          const fade = document.getElementById('fade');
+          fade.classList.add('active');
+          setTimeout(()=>{
+            window.location.href = "donut3.html";
+          }, 1800);
+        }, 1000);
+        return;
+      }
 
-      // 🔥 Fade out animáció kezdete
-      const fade = document.getElementById('fade');
-      fade.classList.add('active');
-
-      // Várunk míg elsötétül, aztán váltunk
-      setTimeout(()=>{
-        window.location.href = "donut3.html";
-      }, 1800); // 1.8s után váltás
-    }, 1000);
-    return;
-  }
-
-  const text = lines[currentIndex];
-  showLine(text, ()=>{
-    setTimeout(()=>{
-      currentIndex++;
-      playSequence();
-    }, 1000);
-  });
-}
-
+      const text = lines[currentIndex];
+      showLine(text, ()=>{
+        setTimeout(()=>{
+          currentIndex++;
+          playSequence();
+        }, 1000);
+      });
+    }
 
     function startIntro(){
       if(isPlaying) return;
