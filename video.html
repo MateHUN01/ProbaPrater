@@ -27,22 +27,7 @@
       box-shadow: 0 0 40px rgba(255, 20, 147, 0.3);
       background: black;
       display: block;
-    }
-
-    .controls {
-      position: fixed;
-      bottom: 35px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(30, 30, 30, 0.7);
-      backdrop-filter: blur(10px);
-      padding: 10px 14px;
-      border-radius: 40px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 0 20px rgba(255, 20, 147, 0.3);
-      transition: opacity 0.3s ease;
+      cursor: pointer;
     }
 
     .end-screen {
@@ -90,10 +75,9 @@
 </head>
 <body>
 
-  <!-- YouTube videó beágyazás -->
   <iframe
     id="youtubeVideo"
-     src="https://www.youtube.com/embed/gHQHhmgZ7GA?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&enablejsapi=1"
+    src="https://www.youtube.com/embed/gHQHhmgZ7GA?autoplay=0&mute=0&controls=1&modestbranding=1&rel=0&enablejsapi=1"
     title="Beágyazott YouTube videó"
     allow="autoplay; encrypted-media"
     allowfullscreen
@@ -108,8 +92,8 @@
   </div>
 
   <script>
-    // YouTube API aszinkron betöltése
     let player;
+
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('youtubeVideo', {
         events: {
@@ -120,16 +104,38 @@
     }
 
     function onPlayerReady(event) {
-      // automatikus lejátszás
-      event.target.playVideo();
+      // semmit nem indít automatikusan, a kattintás indítja
+    }
+
+    async function toggleFullscreen(el) {
+      if (!document.fullscreenElement) {
+        await el.requestFullscreen();
+      }
+    }
+
+    async function exitFullscreen() {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
     }
 
     function onPlayerStateChange(event) {
-      // ha a videó véget ért (state = 0)
       if (event.data === YT.PlayerState.ENDED) {
-        document.getElementById('endScreen').classList.add('visible');
+        // ha vége, kilép teljes képernyőből, majd vár 1s és megjeleníti az end screent
+        exitFullscreen().then(() => {
+          setTimeout(() => {
+            document.getElementById('endScreen').classList.add('visible');
+          }, 1000);
+        });
       }
     }
+
+    // kattintás a videóra → teljes képernyő + lejátszás
+    const iframe = document.getElementById('youtubeVideo');
+    iframe.addEventListener('click', async () => {
+      await toggleFullscreen(iframe);
+      if (player) player.playVideo();
+    });
 
     document.getElementById('yesBtn').addEventListener('click', () => {
       document.getElementById('endScreen').style.opacity = '0';
@@ -144,7 +150,7 @@
       player.playVideo();
     });
 
-    // YouTube API script dinamikusan
+    // YouTube API script betöltése
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
