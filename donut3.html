@@ -549,7 +549,9 @@ createStars();
     buildLegend();
     legend.style.marginBottom = '40px';
     resize();
-    document.body.insertAdjacentHTML('beforeend','<div id="chart-tip" style="position:fixed;bottom:10px;right:10px;background:rgba(255,255,255,0.1);padding:6px 10px;border-radius:10px;font-size:15px;font-weight:500;color:#fff;backdrop-filter:blur(4px);z-index:10;">Tipp: A fánkon az egérrel végighúzva jelennek meg a költségvetési diagram szeletei</div>');
+    
+    document.body.insertAdjacentHTML('beforeend','<div id="eur-info" style="position:fixed;bottom:10px;left:10px;background:rgba(255,255,255,0.1);padding:6px 10px;border-radius:10px;font-size:15px;font-weight:500;color:#fff;backdrop-filter:blur(4px);z-index:10;">Tipp: A fánk cikkelyei felfedéséhez húzza rá az egérmutatót. <br> Megjegyzés: A költségvetés az aktuális euró árfolyam függvényében változhat (388&nbsp;HUF/EUR árfolyamon számolva)</div>');
+
 
    // 🌑 Fade-in betöltéskor
 window.addEventListener('load', () => {
